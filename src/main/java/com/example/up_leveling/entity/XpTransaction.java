@@ -1,10 +1,16 @@
 package com.example.up_leveling.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 
+@Data
 @Entity
 @Table(name = "xp_transactions")
+@EntityListeners(AuditingEntityListener.class)
 public class XpTransaction {
 
     @Id
@@ -15,6 +21,7 @@ public class XpTransaction {
 
     private String source;
 
+    @CreatedDate
     private LocalDateTime createdAt;
 
     @ManyToOne

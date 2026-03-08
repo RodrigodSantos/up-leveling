@@ -25,8 +25,6 @@ public class User {
 
     private String email;
 
-    private Integer xpTotal = 0;
-
     @Enumerated(EnumType.STRING)
     @JdbcType(PostgreSQLEnumJdbcType.class)
     private Status status = Status.ACTIVE;

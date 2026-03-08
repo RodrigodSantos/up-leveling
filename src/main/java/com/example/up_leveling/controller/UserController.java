@@ -3,11 +3,11 @@ package com.example.up_leveling.controller;
 import com.example.up_leveling.dto.request.user.SaveUserDTO;
 import com.example.up_leveling.dto.request.user.UpdateStatusUserDTO;
 import com.example.up_leveling.dto.request.user.UpdateUserDTO;
+import com.example.up_leveling.dto.response.SuccessDTO;
+import com.example.up_leveling.dto.response.user.UserDTO;
 import com.example.up_leveling.entity.User;
 import com.example.up_leveling.service.UserService;
-import jakarta.validation.Path;
 import jakarta.validation.Valid;
-import org.hibernate.sql.model.PreparableMutationOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,17 +26,17 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public User findById(@PathVariable Integer id) {
+    public UserDTO findById(@PathVariable Integer id) {
         return userService.findById(id);
     }
 
     @PostMapping("")
-    public User save(@Valid @RequestBody SaveUserDTO request) {
+    public SuccessDTO save(@Valid @RequestBody SaveUserDTO request) {
         return userService.save(request);
     }
 
     @PutMapping("/{id}")
-    public User update(
+    public SuccessDTO update(
             @PathVariable(required = true) Integer id,
             @Valid @RequestBody UpdateUserDTO request
             ) {
@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @PatchMapping("/{id}")
-    public User updateStatus(
+    public SuccessDTO updateStatus(
             @PathVariable(required = true) Integer id,
             @RequestBody @Valid UpdateStatusUserDTO request
     ) {

@@ -5,17 +5,15 @@ import com.example.up_leveling.dto.request.user.UpdateStatusUserDTO;
 import com.example.up_leveling.dto.request.user.UpdateUserDTO;
 import com.example.up_leveling.dto.response.SuccessDTO;
 import com.example.up_leveling.dto.response.user.UserDTO;
-import com.example.up_leveling.entity.Status;
+import com.example.up_leveling.entity.StatusType;
 import com.example.up_leveling.entity.User;
 import com.example.up_leveling.exception.BadRequestException;
 import com.example.up_leveling.exception.NotFoundException;
 import com.example.up_leveling.repository.UserRepository;
-import org.hibernate.sql.Update;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -30,8 +28,8 @@ public class UserService {
     public UserDTO findById(Integer id) {
 
         User user = userRepository.findById(id)
-                .filter(u -> !u.getStatus().equals(Status.DELETED))
-                .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
+                .filter(u -> !u.getStatus().equals(StatusType.DELETED))
+                .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
 
         return UserDTO.builder()
                 .id(user.getId())
@@ -54,7 +52,7 @@ public class UserService {
 
     public SuccessDTO update(Integer id, UpdateUserDTO request) {
         User user = userRepository.findById(id)
-                .filter(u -> !u.getStatus().equals(Status.DELETED))
+                .filter(u -> !u.getStatus().equals(StatusType.DELETED))
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
         if (!request.getName().isBlank()) {
@@ -70,10 +68,10 @@ public class UserService {
 
     public SuccessDTO updateStatus(Integer id, UpdateStatusUserDTO request) {
         User user = userRepository.findById(id)
-                .filter(u -> !u.getStatus().equals(Status.DELETED))
+                .filter(u -> !u.getStatus().equals(StatusType.DELETED))
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
-        Status status = Status.fromString(request.getStatus());
+        StatusType status = StatusType.fromString(request.getStatus());
         if (status == user.getStatus()) {
             throw new BadRequestException("O novo status não pode ser igual ao anterior");
         }
@@ -86,7 +84,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
-        user.setStatus(Status.DELETED);
+        user.setStatus(StatusType.DELETED);
         userRepository.save(user);
     }
 }

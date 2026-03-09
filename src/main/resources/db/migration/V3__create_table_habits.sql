@@ -3,7 +3,7 @@ CREATE TABLE habits (
     user_id INTEGER NOT NULL,
     name VARCHAR(150) NOT NULL,
     xp_reward INTEGER NOT NULL,
-    status status_type DEFAULT 'ACTIVE',
+    status status_type DEFAULT 'ACTIVE' NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 

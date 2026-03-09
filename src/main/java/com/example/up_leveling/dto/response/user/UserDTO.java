@@ -1,6 +1,6 @@
 package com.example.up_leveling.dto.response.user;
 
-import com.example.up_leveling.entity.Status;
+import com.example.up_leveling.entity.StatusType;
 import com.example.up_leveling.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,7 +16,7 @@ public class UserDTO {
     private String name;
     private String email;
     private Integer xpTotal;
-    private Status status;
+    private StatusType status;
 
     public static UserDTO fromEntity(User user) {
         return UserDTO.builder()

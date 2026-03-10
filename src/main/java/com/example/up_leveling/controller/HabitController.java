@@ -1,6 +1,8 @@
 package com.example.up_leveling.controller;
 
+import com.example.up_leveling.dto.request.UpdateStatusDTO;
 import com.example.up_leveling.dto.request.habit.SaveHabitDTO;
+import com.example.up_leveling.dto.request.habit.UpdateHabitDTO;
 import com.example.up_leveling.dto.response.SuccessDTO;
 import com.example.up_leveling.dto.response.habit.HabitDTO;
 import com.example.up_leveling.entity.Habit;
@@ -19,8 +21,8 @@ public class HabitController {
     private HabitService habitService;
 
     @GetMapping()
-    public List<Habit> findAll() {
-        return habitService.findAll();
+    public List<HabitDTO> findAll() {
+        return HabitDTO.fromEntityList(habitService.findAll());
     }
 
     @GetMapping("/{id}")
@@ -31,5 +33,26 @@ public class HabitController {
     @PostMapping("")
     public SuccessDTO save(@Valid @RequestBody SaveHabitDTO request) {
         return habitService.save(request);
+    }
+
+    @PutMapping("/{id}")
+    public SuccessDTO update(
+            @PathVariable Integer id,
+            @Valid @RequestBody UpdateHabitDTO request
+    ) {
+        return habitService.update(id, request);
+    }
+
+    @PatchMapping("/{id}")
+    public SuccessDTO updateStatus(
+            @PathVariable(required = true) Integer id,
+            @RequestBody @Valid UpdateStatusDTO request
+    ) {
+        return habitService.updateStatus(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Integer id) {
+        habitService.delete(id);
     }
 }

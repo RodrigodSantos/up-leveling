@@ -11,7 +11,7 @@ public class SaveHabitDTO {
     private String name;
 
     @NotNull(message = "A recompensa em xp é obrigatória")
-    @Min(value = 1, message = "A recompensa em xp deve ser maior que um")
+    @Min(value = 1, message = "A recompensa em xp deve ser maior que zero")
     private Integer xpReward;
 
     @NotNull(message = "É necessário informar o usuário ao qual o hábito pertence")

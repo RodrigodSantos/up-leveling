@@ -1,11 +1,11 @@
-package com.example.up_leveling.dto.request.user;
+package com.example.up_leveling.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 
 @Data
-public class UpdateStatusUserDTO {
+public class UpdateStatusDTO {
 
     @NotBlank(message = "O status não pode ser vazio")
     @Pattern(
@@ -13,4 +13,5 @@ public class UpdateStatusUserDTO {
             message = "O status deve ser exatamente 'ACTIVE' ou 'INACTIVE'"
     )
     public String status;
+
 }

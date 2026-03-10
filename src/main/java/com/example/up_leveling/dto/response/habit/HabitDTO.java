@@ -2,12 +2,13 @@ package com.example.up_leveling.dto.response.habit;
 
 import com.example.up_leveling.entity.Habit;
 import com.example.up_leveling.entity.HabitSchedule;
-import com.example.up_leveling.entity.StatusType;
+import com.example.up_leveling.entity.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Collections;
 import java.util.List;
 
 @Data
@@ -19,10 +20,12 @@ public class HabitDTO {
     private Integer id;
     private String name;
     private Integer xpReward;
-    private StatusType status;
+    private Status status;
     private List<HabitSchedule> schedules;
 
     public static HabitDTO fromEntity(Habit habit) {
+        if (habit == null) return null;
+
         return HabitDTO.builder()
                 .id(habit.getId())
                 .name(habit.getName())
@@ -30,5 +33,12 @@ public class HabitDTO {
                 .status(habit.getStatus())
                 .schedules(habit.getSchedules())
                 .build();
+    }
+
+    public static List<HabitDTO> fromEntityList(List<Habit> habits) {
+        if (habits == null) return Collections.emptyList();
+        return habits.stream()
+                .map(HabitDTO::fromEntity)
+                .toList();
     }
 }

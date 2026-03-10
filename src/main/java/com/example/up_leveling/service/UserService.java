@@ -1,11 +1,11 @@
 package com.example.up_leveling.service;
 
+import com.example.up_leveling.dto.request.UpdateStatusDTO;
 import com.example.up_leveling.dto.request.user.SaveUserDTO;
-import com.example.up_leveling.dto.request.user.UpdateStatusUserDTO;
 import com.example.up_leveling.dto.request.user.UpdateUserDTO;
 import com.example.up_leveling.dto.response.SuccessDTO;
 import com.example.up_leveling.dto.response.user.UserDTO;
-import com.example.up_leveling.entity.StatusType;
+import com.example.up_leveling.entity.Status;
 import com.example.up_leveling.entity.User;
 import com.example.up_leveling.exception.BadRequestException;
 import com.example.up_leveling.exception.NotFoundException;
@@ -21,23 +21,17 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserDTO> findAll() {
+        return UserDTO.fromEntityList(userRepository.findAll());
     }
 
     public UserDTO findById(Integer id) {
 
         User user = userRepository.findById(id)
-                .filter(u -> !u.getStatus().equals(StatusType.DELETED))
+                .filter(u -> !u.getStatus().equals(Status.DELETED))
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado"));
 
-        return UserDTO.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .status(user.getStatus())
-                .xpTotal(userRepository.getTotalXp(user.getId()))
-                .build();
+        return UserDTO.fromEntity(user);
     }
 
     public SuccessDTO save(SaveUserDTO request) {
@@ -52,7 +46,7 @@ public class UserService {
 
     public SuccessDTO update(Integer id, UpdateUserDTO request) {
         User user = userRepository.findById(id)
-                .filter(u -> !u.getStatus().equals(StatusType.DELETED))
+                .filter(u -> !u.getStatus().equals(Status.DELETED))
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
         if (!request.getName().isBlank()) {
@@ -66,12 +60,12 @@ public class UserService {
         return new SuccessDTO("Usuário atualizado", UserDTO.fromEntity(user));
     }
 
-    public SuccessDTO updateStatus(Integer id, UpdateStatusUserDTO request) {
+    public SuccessDTO updateStatus(Integer id, UpdateStatusDTO request) {
         User user = userRepository.findById(id)
-                .filter(u -> !u.getStatus().equals(StatusType.DELETED))
+                .filter(u -> !u.getStatus().equals(Status.DELETED))
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
-        StatusType status = StatusType.fromString(request.getStatus());
+        Status status = Status.fromString(request.getStatus());
         if (status == user.getStatus()) {
             throw new BadRequestException("O novo status não pode ser igual ao anterior");
         }
@@ -82,9 +76,15 @@ public class UserService {
 
     public void delete(Integer id) {
         User user = userRepository.findById(id)
+                .filter(u -> !u.getStatus().equals(Status.DELETED))
                 .orElseThrow(() -> new NotFoundException("Usuário não encontrado!"));
 
-        user.setStatus(StatusType.DELETED);
+        user.setStatus(Status.DELETED);
+
+        if (user.getHabits() != null) {
+            user.getHabits().forEach(habit -> habit.setStatus(Status.DELETED));
+        }
+
         userRepository.save(user);
     }
 }

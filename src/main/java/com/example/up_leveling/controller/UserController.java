@@ -1,11 +1,10 @@
 package com.example.up_leveling.controller;
 
+import com.example.up_leveling.dto.request.UpdateStatusDTO;
 import com.example.up_leveling.dto.request.user.SaveUserDTO;
-import com.example.up_leveling.dto.request.user.UpdateStatusUserDTO;
 import com.example.up_leveling.dto.request.user.UpdateUserDTO;
 import com.example.up_leveling.dto.response.SuccessDTO;
 import com.example.up_leveling.dto.response.user.UserDTO;
-import com.example.up_leveling.entity.User;
 import com.example.up_leveling.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +20,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public List<User> findAll() {
+    public List<UserDTO> findAll() {
         return userService.findAll();
     }
 
@@ -46,7 +45,7 @@ public class UserController {
     @PatchMapping("/{id}")
     public SuccessDTO updateStatus(
             @PathVariable(required = true) Integer id,
-            @RequestBody @Valid UpdateStatusUserDTO request
+            @RequestBody @Valid UpdateStatusDTO request
     ) {
         return userService.updateStatus(id, request);
     }

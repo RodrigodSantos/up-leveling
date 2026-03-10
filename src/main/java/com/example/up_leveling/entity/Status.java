@@ -1,11 +1,11 @@
 package com.example.up_leveling.entity;
 
-public enum StatusType {
+public enum Status {
     ACTIVE,
     INACTIVE,
     DELETED;
 
-    public static StatusType fromString(String status) {
+    public static Status fromString(String status) {
         return switch (status) {
             case "ACTIVE" -> ACTIVE;
             case "INACTIVE" -> INACTIVE;

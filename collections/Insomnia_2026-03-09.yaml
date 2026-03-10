@@ -1,0 +1,369 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: UpLeveling
+meta:
+  id: wrk_cce5616cd590494cadf0819d30ae5ce8
+  created: 1772931879825
+  modified: 1772931889775
+  description: ""
+collection:
+  - name: User
+    meta:
+      id: fld_96d46a0ea80e455da2b1f722da3b99f5
+      created: 1772931900126
+      modified: 1773103771706
+      sortKey: -1773099057591
+      description: ""
+    children:
+      - url: "{{ _.baseUrl }}/user"
+        name: findAll
+        meta:
+          id: req_50c1ee3eb986411dad1eb6b1fbb99159
+          created: 1772931903027
+          modified: 1773101247069
+          isPrivate: false
+          description: ""
+          sortKey: -1773099949837
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/user"
+        name: save
+        meta:
+          id: req_db2071822631499286532ddad4dbad09
+          created: 1772933336782
+          modified: 1773100074084
+          isPrivate: false
+          description: ""
+          sortKey: -1773099949674.5
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "Rodrigo dos Santos",
+            	"email": "rodrigo@gmail.com"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/user/1"
+        name: findById
+        meta:
+          id: req_44a5bcf6e25043499739694d5e99e52d
+          created: 1772934553802
+          modified: 1773100079264
+          isPrivate: false
+          description: ""
+          sortKey: -1773099949737
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/user/1"
+        name: update
+        meta:
+          id: req_6f971f7e984f4614beac06eaee7ac3c3
+          created: 1772935252642
+          modified: 1773099967399
+          isPrivate: false
+          description: ""
+          sortKey: -1773099949662
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |
+            {
+            	"name": "Rodrigo Gomes",
+            	"email": "rodrigo4@gmail.com"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/user/1"
+        name: updateStatusUser
+        meta:
+          id: req_5526893570ad430fa20f79c31ee2a3a0
+          created: 1772938264480
+          modified: 1773104616888
+          isPrivate: false
+          description: ""
+          sortKey: -1773099949649.5
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"status": "ACTIVE"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/user/1"
+        name: delete
+        meta:
+          id: req_26d3424be9e64a37b26386d8ee64863b
+          created: 1773099949637
+          modified: 1773105205424
+          isPrivate: false
+          description: ""
+          sortKey: -1773099949637
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+  - name: Habit
+    meta:
+      id: fld_7ebae11154a34e05906d8e61cdcc434e
+      created: 1773099057491
+      modified: 1773099057491
+      sortKey: -1773099057491
+      description: ""
+    children:
+      - url: "{{ _.baseUrl }}/habit"
+        name: findAll
+        meta:
+          id: req_5984a717e6984b0ca73f890ac0a34664
+          created: 1773099060591
+          modified: 1773099987325
+          isPrivate: false
+          description: ""
+          sortKey: -1773099060591
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/habit/1"
+        name: findById
+        meta:
+          id: req_bc08ab02e092440bb21ffc3992f939a5
+          created: 1773099992676
+          modified: 1773100002053
+          isPrivate: false
+          description: ""
+          sortKey: -1755558007183.5
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/habit"
+        name: save
+        meta:
+          id: req_c6662e53f4c24b45bf478cd72f85bcb6
+          created: 1773100011645
+          modified: 1773100065004
+          isPrivate: false
+          description: ""
+          sortKey: -1746787480479.75
+        method: POST
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "Treino",
+            	"xpReward": 20,
+            	"userId": 1
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/habit/1"
+        name: update
+        meta:
+          id: req_c04618562b9243ab92e9aed890061b3c
+          created: 1773103238529
+          modified: 1773103804976
+          isPrivate: false
+          description: ""
+          sortKey: -1742402217127.875
+        method: PUT
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"name": "Treino",
+            	"xpReward": 15
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/habit/1"
+        name: updateStatus
+        meta:
+          id: req_67c809207d04445aa23fef96050bacf8
+          created: 1773104312885
+          modified: 1773104347683
+          isPrivate: false
+          description: ""
+          sortKey: -1740209585451.9375
+        method: PATCH
+        body:
+          mimeType: application/json
+          text: |-
+            {
+            	"status": "INACTIVE"
+            }
+        headers:
+          - name: Content-Type
+            value: application/json
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+      - url: "{{ _.baseUrl }}/habit/1"
+        name: delete
+        meta:
+          id: req_ddcee4821ad746fbb6293017f67b6172
+          created: 1773104641810
+          modified: 1773104645988
+          isPrivate: false
+          description: ""
+          sortKey: -1740209585351.9375
+        method: DELETE
+        headers:
+          - name: User-Agent
+            value: insomnia/12.4.0
+            description: ""
+            disabled: false
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_08a8735ceee3024a90a5d4be43cc640d62508096
+    created: 1772931879828
+    modified: 1772931879828
+environments:
+  name: Base Environment
+  meta:
+    id: env_08a8735ceee3024a90a5d4be43cc640d62508096
+    created: 1772931879826
+    modified: 1772933428731
+    isPrivate: false
+  data:
+    baseUrl: localhost:8080

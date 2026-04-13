@@ -39,6 +39,7 @@ public class UserService {
         User user = new User();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
+        user.setStatus(Status.ACTIVE);
         userRepository.save(user);
 
         return new SuccessDTO("Usuário criado", UserDTO.fromEntity(user));

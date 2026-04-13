@@ -2,9 +2,7 @@ package com.example.up_leveling.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.JdbcType;
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 import org.hibernate.type.SqlTypes;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -29,10 +27,10 @@ public class Level {
     @Column(name = "xp_required", nullable = false)
     private Integer xpRequired;
 
-    @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "status_type", columnDefinition = "status default 'ACTIVE'", nullable = false)
-    private Status status = Status.ACTIVE;
+    @Column(columnDefinition = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @CreatedDate
     @Column(name = "created_at")

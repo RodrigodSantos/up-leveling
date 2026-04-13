@@ -50,6 +50,7 @@ public class HabitService {
 
         habit.setName(request.getName());
         habit.setXpReward(request.getXpReward());
+        habit.setStatus(Status.ACTIVE);
 
         User user = userRepository.findById(request.getUserId())
                 .filter(u -> !u.getStatus().equals(Status.DELETED))

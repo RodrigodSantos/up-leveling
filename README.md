@@ -28,6 +28,9 @@ docker compose up -d
 - Swagger: http://localhost:8080/swagger-ui.html
 - Health: http://localhost:8080/actuator/health
 
+### Postman
+A collection com todas as rotas está em [`postman/`](postman/up-leveling.postman_collection.json). Importe no Postman (ou no Insomnia) e rode as pastas em ordem: o **Cadastro** cria um usuário novo a cada execução e o **Login** guarda o token, usado automaticamente nas outras requests.
+
 ### Testes
 ```bash
 ./mvnw verify
@@ -39,6 +42,6 @@ O Docker precisa estar rodando: o Testcontainers sobe um Postgres temporário pa
 - [x] Usuários e autenticação (JWT): cadastro, login, `/api/me` e troca de senha
 - [x] Hábitos com agenda semanal: CRUD, pausar/reativar e exclusão lógica
 - [x] Gamificação: check-ins com meta diária, XP, níveis progressivos, streak com bônus e desfazer
-- [ ] Endpoints de progresso para o frontend
+- [x] Endpoints para o frontend: resumo do dia, histórico paginado e XP por dia
 - [ ] Frontend
 - [ ] Deploy

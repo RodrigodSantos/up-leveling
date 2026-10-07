@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * A aplicação sobe, o Flyway cria o schema e as peças transversais (health, Swagger, erros) respondem.
  */
-@SpringBootTest
+@SpringBootTest(properties = "upleveling.bcrypt-strength=4") // mesmas propriedades do ApiTest: um contexto só
 @AutoConfigureMockMvc
 @Import({TestcontainersConfiguration.class, TestClockConfiguration.class}) // mesmo contexto do ApiTest: um container só
 class FoundationTest {

@@ -1,0 +1,8 @@
+# Fica fora da imagem: deixa o build mais rápido e não vaza nada local
+.git
+.github
+.idea
+target
+postman
+docs
+*.md

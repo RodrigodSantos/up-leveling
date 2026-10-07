@@ -5,6 +5,7 @@ import io.github.rodrigodsantos.upleveling.dashboard.dto.DailyXp;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -15,6 +16,11 @@ import java.util.Optional;
 public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
 
     long countByHabitIdAndCheckInDate(Long habitId, LocalDate checkInDate);
+
+    /** Apaga direto no banco, sem carregar linha por linha (usado ao recriar a conta demo). */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("DELETE FROM CheckIn c WHERE c.userId = :userId")
+    void deleteAllOfUser(@Param("userId") Long userId);
 
     /** O último do dia: é o que o "desfazer" remove. */
     Optional<CheckIn> findFirstByHabitIdAndCheckInDateOrderByIdDesc(Long habitId, LocalDate checkInDate);

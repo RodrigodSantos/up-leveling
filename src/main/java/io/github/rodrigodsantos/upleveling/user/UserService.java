@@ -1,5 +1,6 @@
 package io.github.rodrigodsantos.upleveling.user;
 
+import io.github.rodrigodsantos.upleveling.shared.DemoAccount;
 import io.github.rodrigodsantos.upleveling.shared.EmailNormalizer;
 import io.github.rodrigodsantos.upleveling.shared.exception.BusinessRuleException;
 import io.github.rodrigodsantos.upleveling.shared.exception.ConflictException;
@@ -36,6 +37,7 @@ public class UserService {
     @Transactional
     public UserResponse updateProfile(UpdateProfileRequest request) {
         User user = loggedUser();
+        protectDemoAccount(user);
         String email = EmailNormalizer.normalize(request.email());
         if (repository.existsByEmailAndIdNot(email, user.getId())) {
             throw new ConflictException("Já existe uma conta com o e-mail '" + email + "'");
@@ -48,11 +50,19 @@ public class UserService {
     @Transactional
     public void changePassword(ChangePasswordRequest request) {
         User user = loggedUser();
+        protectDemoAccount(user);
         // 422, e não 401: o token é válido; um 401 faria o frontend deslogar o usuário por ter errado a senha
         if (!passwordEncoder.matches(request.currentPassword(), user.getPasswordHash())) {
             throw new BusinessRuleException("A senha atual está incorreta");
         }
         user.changePassword(passwordEncoder.encode(request.newPassword()));
+    }
+
+    /** A conta demo é compartilhada: se um visitante trocasse a senha ou o e-mail, trancaria todos os outros. */
+    private void protectDemoAccount(User user) {
+        if (DemoAccount.is(user.getEmail())) {
+            throw new BusinessRuleException("A conta de demonstração não pode ter o e-mail nem a senha alterados");
+        }
     }
 
     private User loggedUser() {

@@ -17,5 +17,22 @@ services:
       timeout: 5s
       retries: 10
 
+  # A API em container (opcional): docker compose --profile app up --build
+  api:
+    build: .
+    container_name: up-leveling-api
+    profiles: ["app"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-upleveling}
+      DB_USER: ${DB_USER:-upleveling}
+      DB_PASSWORD: ${DB_PASSWORD:-upleveling}
+      # demo: cria a conta demo@upleveling.local / demo1234 com dados prontos
+      SPRING_PROFILES_ACTIVE: demo
+    ports:
+      - "8080:8080"
+
 volumes:
   postgres-data:

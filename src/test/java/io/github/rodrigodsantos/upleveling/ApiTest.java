@@ -18,7 +18,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * <p>
  * {@code @Transactional}: cada teste roda numa transação desfeita no fim, então um teste não suja o outro.
  */
-@SpringBootTest
+@SpringBootTest(properties = "upleveling.bcrypt-strength=4") // hash rápido: ver SecurityConfig.passwordEncoder
 @AutoConfigureMockMvc
 @Import({TestcontainersConfiguration.class, TestClockConfiguration.class})
 @Transactional

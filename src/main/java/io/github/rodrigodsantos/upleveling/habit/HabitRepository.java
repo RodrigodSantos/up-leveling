@@ -19,6 +19,9 @@ public interface HabitRepository extends JpaRepository<Habit, Long> {
     @EntityGraph(attributePaths = "days")
     Optional<Habit> findByIdAndUserIdAndStatusNot(Long id, Long userId, HabitStatus status);
 
+    /** Todos, inclusive excluídos (usado ao recriar a conta demo). */
+    List<Habit> findByUserId(Long userId);
+
     boolean existsByUserIdAndNameIgnoreCaseAndStatusNot(Long userId, String name, HabitStatus status);
 
     /** Na edição: outro hábito meu, que não este, já usa o nome? */

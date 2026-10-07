@@ -1,0 +1,33 @@
+# Configuração do deploy no Render como código (Blueprint).
+# Os segredos do banco não ficam aqui: são preenchidos no painel do Render (sync: false).
+services:
+  - type: web
+    name: up-leveling-api
+    runtime: docker
+    plan: free
+    region: virginia # mesma região do banco no Neon (AWS us-east-1)
+    healthCheckPath: /actuator/health
+    # Mudanças só de documentação, CI ou badges não geram um novo deploy
+    buildFilter:
+      ignoredPaths:
+        - .github/**
+        - docs/**
+        - postman/**
+        - "**/*.md"
+    envVars:
+      # prod: ajustes para o plano gratuito; demo: recria a conta demo a cada inicialização
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod,demo
+      - key: DB_URL
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true # o Render gera um valor aleatório
+      - key: APP_TIME_ZONE
+        value: America/Sao_Paulo
+      # Endereço(s) do frontend, separados por vírgula; atualizar quando o front for publicado
+      - key: CORS_ALLOWED_ORIGINS
+        value: http://localhost:5173

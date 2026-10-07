@@ -1,0 +1,14 @@
+# Perfil de produção (deploy). Ativado com SPRING_PROFILES_ACTIVE=prod.
+spring:
+  datasource:
+    hikari:
+      # Plano gratuito do banco: poucas conexões bastam e evitam estourar o limite
+      maximum-pool-size: 5
+      # O banco gratuito "dorme" quando fica parado; a primeira conexão pode demorar
+      connection-timeout: 60000
+
+management:
+  endpoint:
+    health:
+      # Não expõe detalhes internos (banco, disco) no endpoint público
+      show-details: never

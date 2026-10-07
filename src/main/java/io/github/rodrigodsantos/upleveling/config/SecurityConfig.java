@@ -9,6 +9,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -49,6 +50,9 @@ public class SecurityConfig {
         return http
                 // API stateless com token no header: não usa sessão nem cookie, então CSRF não se aplica
                 .csrf(AbstractHttpConfigurer::disable)
+                // Usa o CorsConfigurationSource do CorsConfig; precisa vir antes da autenticação,
+                // porque o navegador manda o "preflight" (OPTIONS) sem token
+                .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
@@ -86,8 +90,12 @@ public class SecurityConfig {
         return NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
     }
 
+    /**
+     * A força é o custo do hash: cada +1 dobra o tempo. 10 (padrão) em produção, para dificultar ataques de força
+     * bruta; os testes usam 4, porque fazem centenas de cadastros e logins e ali a segurança não importa.
+     */
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder(@Value("${upleveling.bcrypt-strength:10}") int strength) {
+        return new BCryptPasswordEncoder(strength);
     }
 }

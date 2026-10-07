@@ -33,6 +33,9 @@ management:
 upleveling:
   # Fuso que define o "hoje" dos check-ins (todos os usuários seguem o mesmo)
   time-zone: ${APP_TIME_ZONE:America/Sao_Paulo}
+  cors:
+    # Endereços do frontend que podem chamar a API, separados por vírgula (5173 = Vite em desenvolvimento)
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
   jwt:
     # Em produção, definir JWT_SECRET com no mínimo 32 caracteres aleatórios.
     # O valor padrão serve só para desenvolvimento local.

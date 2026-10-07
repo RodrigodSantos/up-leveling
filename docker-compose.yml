@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: up-leveling-postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME:-upleveling}
+      POSTGRES_USER: ${DB_USER:-upleveling}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-upleveling}
+    ports:
+      # 5434 no host: a 5432 é do PostgreSQL instalado no Windows e a 5433 de outro projeto
+      - "5434:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-upleveling}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres-data:

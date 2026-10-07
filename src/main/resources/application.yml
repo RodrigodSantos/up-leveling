@@ -1,0 +1,31 @@
+server:
+  # Plataformas de hospedagem (ex.: Render) informam a porta pela variável PORT
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: up-leveling
+  datasource:
+    # Os padrões batem com o docker-compose.yml; em produção, vêm das variáveis de ambiente
+    url: ${DB_URL:jdbc:postgresql://localhost:5434/upleveling}
+    username: ${DB_USER:upleveling}
+    password: ${DB_PASSWORD:upleveling}
+  jpa:
+    hibernate:
+      # O Flyway é dono do schema; o Hibernate só confere se as entidades batem com ele
+      ddl-auto: validate
+    open-in-view: false
+  mvc:
+    problemdetails:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info

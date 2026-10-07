@@ -87,7 +87,7 @@ class CheckInControllerTest extends ApiTest {
                 .andExpect(jsonPath("$.date").value("2026-10-06"));
         checkIn(ler, TODAY.minusDays(2))
                 .andExpect(status().isUnprocessableContent())
-                .andExpect(jsonPath("$.detail").value("O check-in só pode ser feito para hoje ou ontem"));
+                .andExpect(jsonPath("$.detail").value("Só é possível usar a data de hoje ou de ontem"));
         checkIn(ler, TODAY.plusDays(1)).andExpect(status().isUnprocessableContent());
     }
 

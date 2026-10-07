@@ -50,7 +50,7 @@ public class CheckInService {
             throw new BusinessRuleException("O hábito '" + habit.getName() + "' está pausado. Reative-o para fazer check-in");
         }
         LocalDate today = LocalDate.now(clock);
-        LocalDate date = resolveDate(requestedDate, today);
+        LocalDate date = CheckInDates.resolve(requestedDate, today);
         if (!habit.isScheduledOn(date.getDayOfWeek())) {
             throw new BusinessRuleException("O hábito '" + habit.getName() + "' não está agendado para "
                     + date.getDayOfWeek().getDisplayName(TextStyle.FULL, PT_BR));
@@ -73,7 +73,7 @@ public class CheckInService {
     public CheckInResponse undo(Long habitId, LocalDate requestedDate) {
         Habit habit = findOwn(habitId);
         LocalDate today = LocalDate.now(clock);
-        LocalDate date = resolveDate(requestedDate, today);
+        LocalDate date = CheckInDates.resolve(requestedDate, today);
 
         CheckIn last = checkInRepository.findFirstByHabitIdAndCheckInDateOrderByIdDesc(habit.getId(), date)
                 .orElseThrow(() -> new ResourceNotFoundException(
@@ -90,14 +90,6 @@ public class CheckInService {
         return ProgressResponse.of(checkInRepository.totalXp(currentUser.id()));
     }
 
-    /** Sem data = hoje. Retroativo só até ontem (esqueceu de marcar); futuro nunca. */
-    private LocalDate resolveDate(LocalDate requested, LocalDate today) {
-        LocalDate date = requested == null ? today : requested;
-        if (date.isAfter(today) || date.isBefore(today.minusDays(1))) {
-            throw new BusinessRuleException("O check-in só pode ser feito para hoje ou ontem");
-        }
-        return date;
-    }
 
     private boolean completesDay(Habit habit, int countBefore) {
         return countBefore + 1 == habit.getDailyTarget();

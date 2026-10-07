@@ -37,6 +37,10 @@ public class Habit {
     @Column(name = "xp_reward", nullable = false)
     private int xpReward;
 
+    /** Quantos check-ins o hábito pede por dia; cada um rende o xpReward. */
+    @Column(name = "daily_target", nullable = false)
+    private int dailyTarget;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private HabitStatus status;
@@ -58,17 +62,19 @@ public class Habit {
     protected Habit() {
     }
 
-    public Habit(Long userId, String name, int xpReward, Set<DayOfWeek> days) {
+    public Habit(Long userId, String name, int xpReward, int dailyTarget, Set<DayOfWeek> days) {
         this.userId = userId;
         this.name = name;
         this.xpReward = xpReward;
+        this.dailyTarget = dailyTarget;
         this.days.addAll(days);
         this.status = HabitStatus.ACTIVE;
     }
 
-    public void update(String name, int xpReward, Set<DayOfWeek> days) {
+    public void update(String name, int xpReward, int dailyTarget, Set<DayOfWeek> days) {
         this.name = name;
         this.xpReward = xpReward;
+        this.dailyTarget = dailyTarget;
         // Altera a mesma coleção em vez de trocar a referência: o Hibernate acompanha a coleção que ele carregou
         this.days.clear();
         this.days.addAll(days);
@@ -80,6 +86,11 @@ public class Habit {
 
     public void delete() {
         this.status = HabitStatus.DELETED;
+    }
+
+    /** Agenda vazia = todos os dias. */
+    public boolean isScheduledOn(DayOfWeek day) {
+        return days.isEmpty() || days.contains(day);
     }
 
     public Long getId() {
@@ -96,6 +107,10 @@ public class Habit {
 
     public int getXpReward() {
         return xpReward;
+    }
+
+    public int getDailyTarget() {
+        return dailyTarget;
     }
 
     public HabitStatus getStatus() {

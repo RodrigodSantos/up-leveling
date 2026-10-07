@@ -38,7 +38,7 @@ O Docker precisa estar rodando: o Testcontainers sobe um Postgres temporário pa
 - [x] Fundação: Java 21, Spring Boot 4, Flyway, Swagger, erros no padrão RFC 9457, Testcontainers, CI
 - [x] Usuários e autenticação (JWT): cadastro, login, `/api/me` e troca de senha
 - [x] Hábitos com agenda semanal: CRUD, pausar/reativar e exclusão lógica
-- [ ] Gamificação: check-in, XP e níveis
+- [x] Gamificação: check-ins com meta diária, XP, níveis progressivos, streak com bônus e desfazer
 - [ ] Endpoints de progresso para o frontend
 - [ ] Frontend
 - [ ] Deploy

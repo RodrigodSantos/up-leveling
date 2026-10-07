@@ -20,12 +20,18 @@ public record HabitRequest(
         @Max(value = 100, message = "deve estar entre 1 e 100")
         Integer xpReward,
 
+        // Ausente = 1 check-in por dia
+        @Min(value = 1, message = "deve estar entre 1 e 20")
+        @Max(value = 20, message = "deve estar entre 1 e 20")
+        Integer dailyTarget,
+
         // Vazio ou ausente = todos os dias
         Set<DayOfWeek> days
 ) {
 
     public HabitRequest {
         name = name == null ? null : name.trim();
+        dailyTarget = dailyTarget == null ? 1 : dailyTarget;
         days = days == null ? Set.of() : Set.copyOf(days);
     }
 }

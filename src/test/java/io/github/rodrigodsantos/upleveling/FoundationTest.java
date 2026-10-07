@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, TestClockConfiguration.class}) // mesmo contexto do ApiTest: um container só
 class FoundationTest {
 
     @Autowired
@@ -48,7 +48,7 @@ class FoundationTest {
                 ORDER BY table_name
                 """, String.class);
 
-        assertThat(tables).containsExactly("habit_schedule", "habits", "users");
+        assertThat(tables).containsExactly("check_ins", "habit_schedule", "habits", "users");
     }
 
     @Test

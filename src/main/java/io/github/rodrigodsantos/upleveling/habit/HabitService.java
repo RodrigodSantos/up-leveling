@@ -49,7 +49,8 @@ public class HabitService {
         if (repository.existsByUserIdAndNameIgnoreCaseAndStatusNot(userId, request.name(), DELETED)) {
             throw duplicateName(request.name());
         }
-        Habit habit = repository.save(new Habit(userId, request.name(), request.xpReward(), request.days()));
+        Habit habit = repository.save(
+                new Habit(userId, request.name(), request.xpReward(), request.dailyTarget(), request.days()));
         return HabitResponse.from(habit);
     }
 
@@ -59,7 +60,7 @@ public class HabitService {
         if (repository.existsByUserIdAndNameIgnoreCaseAndStatusNotAndIdNot(habit.getUserId(), request.name(), DELETED, id)) {
             throw duplicateName(request.name());
         }
-        habit.update(request.name(), request.xpReward(), request.days());
+        habit.update(request.name(), request.xpReward(), request.dailyTarget(), request.days());
         return HabitResponse.from(habit);
     }
 

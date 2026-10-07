@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /** Os dias saem em ordem (segunda → domingo), para o frontend não precisar ordenar. */
-public record HabitResponse(Long id, String name, int xpReward, HabitStatus status, List<DayOfWeek> days,
+public record HabitResponse(Long id, String name, int xpReward, int dailyTarget, HabitStatus status, List<DayOfWeek> days,
                             LocalDateTime createdAt) {
 
     public static HabitResponse from(Habit habit) {
@@ -16,6 +16,7 @@ public record HabitResponse(Long id, String name, int xpReward, HabitStatus stat
                 habit.getId(),
                 habit.getName(),
                 habit.getXpReward(),
+                habit.getDailyTarget(),
                 habit.getStatus(),
                 habit.getDays().stream().sorted().toList(),
                 habit.getCreatedAt()

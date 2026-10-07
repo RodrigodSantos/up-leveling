@@ -1,6 +1,7 @@
 package io.github.rodrigodsantos.upleveling;
 
 import com.jayway.jsonpath.JsonPath;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -19,7 +20,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  */
 @SpringBootTest
 @AutoConfigureMockMvc
-@Import(TestcontainersConfiguration.class)
+@Import({TestcontainersConfiguration.class, TestClockConfiguration.class})
 @Transactional
 public abstract class ApiTest {
 
@@ -27,6 +28,15 @@ public abstract class ApiTest {
 
     @Autowired
     protected MockMvc mockMvc;
+
+    @Autowired
+    protected MutableClock clock;
+
+    /** O relógio é compartilhado entre os testes: cada um começa de novo em "hoje = quarta, 07/10/2026". */
+    @BeforeEach
+    void resetClock() {
+        clock.setToday(TestClockConfiguration.TODAY);
+    }
 
     protected ResultActions register(String name, String email, String password) throws Exception {
         return mockMvc.perform(post("/api/auth/register")

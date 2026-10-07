@@ -31,6 +31,8 @@ management:
         include: health,info
 
 upleveling:
+  # Fuso que define o "hoje" dos check-ins (todos os usuários seguem o mesmo)
+  time-zone: ${APP_TIME_ZONE:America/Sao_Paulo}
   jwt:
     # Em produção, definir JWT_SECRET com no mínimo 32 caracteres aleatórios.
     # O valor padrão serve só para desenvolvimento local.

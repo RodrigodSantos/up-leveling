@@ -22,7 +22,10 @@ public class OpenApiConfig {
                                 Hábitos gamificados: cumpra seus hábitos, ganhe XP e suba de nível.
 
                                 **Para testar:** crie uma conta em `POST /api/auth/register`, faça login em \
-                                `POST /api/auth/login`, copie o `token` e clique em **Authorize**.""")
+                                `POST /api/auth/login`, copie o `token` e clique em **Authorize**.
+
+                                Para ver dados prontos, faça login com a **conta demo**: \
+                                `demo@upleveling.local` / `demo1234`.""")
                         .version("0.0.1"))
                 // Cadeado em todas as rotas; as públicas tiram com @SecurityRequirements vazio
                 .components(new Components().addSecuritySchemes(BEARER, new SecurityScheme()

@@ -8,8 +8,10 @@
 
 API REST em **Java 21 + Spring Boot 4**, pensada para um frontend completo (em desenvolvimento): cada tela do app é atendida por uma chamada só.
 
+![Swagger da Up Leveling API](docs/swagger.png)
+
 ## 🌐 Demo online
-- **Swagger:** _link disponível após o deploy_
+- **Swagger:** https://up-leveling-api.onrender.com (a raiz abre a documentação)
 - **Conta demo:** `demo@upleveling.local` / `demo1234`, com 5 hábitos e 30 dias de histórico (nível, sequências e gráfico preenchidos)
 
 > ⏳ Hospedado no plano gratuito: depois de um tempo sem acesso, a primeira requisição pode levar cerca de 1 minuto para "acordar" a API.
@@ -154,6 +156,8 @@ docker compose --profile app up --build
 ### Postman
 A collection com todas as rotas está em [`postman/`](postman/up-leveling.postman_collection.json). Importe no Postman (ou no Insomnia) e rode as pastas em ordem: o **Cadastro** cria um usuário novo a cada execução e o **Login** guarda o token, usado automaticamente nas outras requests.
 
+Para usar a **produção com a conta demo**, importe também o ambiente [`up-leveling-producao`](postman/up-leveling-producao.postman_environment.json) e selecione-o. Com ele ativo, o Login entra na conta demo, e o Cadastro, o Atualizar perfil e o Trocar senha são pulados. A última pasta exclui os hábitos que a collection criou, então ela pode rodar várias vezes seguidas.
+
 ### Testes
 ```bash
 ./mvnw verify
@@ -208,7 +212,7 @@ src/main/java/io/github/rodrigodsantos/upleveling
 - [x] Gamificação: check-ins com meta diária, XP, níveis, streak com bônus e desfazer
 - [x] Endpoints para o frontend: resumo do dia, histórico e XP por dia
 - [x] Docker, conta demo e configuração de deploy
-- [ ] Deploy publicado
+- [x] Deploy publicado (Render + Neon)
 - [ ] Frontend
 
 ### Melhorias futuras

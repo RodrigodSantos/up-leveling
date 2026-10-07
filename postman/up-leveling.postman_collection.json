@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Up Leveling API",
-    "description": "Hábitos gamificados: cumpra seus hábitos, ganhe XP e suba de nível.\n\n**Como usar:** rode as pastas na ordem (ou a collection inteira no Runner). O \"Cadastro\" cria um usuário novo a cada execução (e-mail com timestamp) e o \"Login\" guarda o token, usado automaticamente por todas as outras requests (auth Bearer da collection).\n\nPara usar o deploy, troque a variável `baseUrl`.",
+    "description": "Hábitos gamificados: cumpra seus hábitos, ganhe XP e suba de nível.\n\n**Como usar:** rode as pastas na ordem (ou a collection inteira no Runner). O \"Cadastro\" cria um usuário novo a cada execução (e-mail com timestamp) e o \"Login\" guarda o token, usado automaticamente por todas as outras requests (auth Bearer da collection).\n\n**Produção com a conta demo:** importe o ambiente \"Up Leveling - Produção (demo)\" (pasta postman/). Com ele ativo, o Cadastro, o Atualizar perfil e o Trocar senha são pulados; o Login entra na conta demo.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -37,6 +37,10 @@
     },
     {
       "key": "waterHabitId",
+      "value": ""
+    },
+    {
+      "key": "scheduleHabitId",
       "value": ""
     }
   ],
@@ -84,6 +88,9 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
+                  "if (pm.environment.get('demo') === 'true') {",
+                  "  pm.execution.skipRequest(); // a conta demo já existe e não pode ter e-mail nem senha alterados",
+                  "}",
                   "// E-mail novo a cada execução, para o Runner poder rodar a collection várias vezes",
                   "pm.collectionVariables.set('email', `rodrigo+${Date.now()}@mail.com`);"
                 ]
@@ -221,7 +228,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Ler 20 páginas\",\n  \"xpReward\": 30\n}",
+              "raw": "{\n  \"name\": \"Caminhar 30 minutos\",\n  \"xpReward\": 30\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -265,7 +272,7 @@
             "description": "Meta de 8 check-ins por dia; cada um rende 5 XP. Sem \"days\" = todos os dias.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Beber água\",\n  \"xpReward\": 5,\n  \"dailyTarget\": 8\n}",
+              "raw": "{\n  \"name\": \"Copos de água\",\n  \"xpReward\": 5,\n  \"dailyTarget\": 8\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -308,7 +315,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Academia\",\n  \"xpReward\": 50,\n  \"days\": [\n    \"MONDAY\",\n    \"WEDNESDAY\",\n    \"FRIDAY\"\n  ]\n}",
+              "raw": "{\n  \"name\": \"Aula de inglês\",\n  \"xpReward\": 50,\n  \"days\": [\n    \"MONDAY\",\n    \"WEDNESDAY\",\n    \"FRIDAY\"\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -322,7 +329,8 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('201 Created', () => pm.response.to.have.status(201));"
+                  "pm.test('201 Created', () => pm.response.to.have.status(201));",
+                  "pm.collectionVariables.set('scheduleHabitId', pm.response.json().id);"
                 ]
               }
             }
@@ -443,7 +451,7 @@
             "description": "PUT substitui o hábito inteiro: name e xpReward são obrigatórios.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Ler 30 páginas\",\n  \"xpReward\": 40,\n  \"dailyTarget\": 1,\n  \"days\": []\n}",
+              "raw": "{\n  \"name\": \"Caminhar 40 minutos\",\n  \"xpReward\": 40,\n  \"dailyTarget\": 1,\n  \"days\": []\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -485,7 +493,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"BEBER ÁGUA\",\n  \"xpReward\": 5\n}",
+              "raw": "{\n  \"name\": \"COPOS DE ÁGUA\",\n  \"xpReward\": 5\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -917,6 +925,17 @@
           },
           "event": [
             {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get('demo') === 'true') {",
+                  "  pm.execution.skipRequest(); // a conta demo já existe e não pode ter e-mail nem senha alterados",
+                  "}"
+                ]
+              }
+            },
+            {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
@@ -959,6 +978,17 @@
             }
           },
           "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get('demo') === 'true') {",
+                  "  pm.execution.skipRequest(); // a conta demo já existe e não pode ter e-mail nem senha alterados",
+                  "}"
+                ]
+              }
+            },
             {
               "listen": "test",
               "script": {
@@ -1079,6 +1109,64 @@
                 "api",
                 "habits",
                 "{{habitId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Excluir hábito com meta diária",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/habits/{{waterHabitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "habits",
+                "{{waterHabitId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Excluir hábito com agenda",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/habits/{{scheduleHabitId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "habits",
+                "{{scheduleHabitId}}"
               ]
             }
           },

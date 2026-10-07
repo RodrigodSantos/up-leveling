@@ -12,9 +12,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -57,8 +59,16 @@ class FoundationTest {
     }
 
     @Test
+    void rootRedirectsToSwaggerWithoutToken() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isFound())
+                .andExpect(redirectedUrl("/swagger-ui.html"));
+    }
+
+    /** Autenticado (jwt() simula um token válido), para o 404 não ser escondido pelo 401 da segurança. */
+    @Test
     void unknownRouteAnswersWithProblemDetail() throws Exception {
-        mockMvc.perform(get("/does-not-exist"))
+        mockMvc.perform(get("/api/does-not-exist").with(jwt()))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
                 .andExpect(jsonPath("$.status").value(404));

@@ -28,6 +28,6 @@ services:
         generateValue: true # o Render gera um valor aleatório
       - key: APP_TIME_ZONE
         value: America/Sao_Paulo
-      # Endereço(s) do frontend, separados por vírgula; atualizar quando o front for publicado
+      # Endereços do frontend, separados por vírgula: desenvolvimento local e o deploy na Vercel
       - key: CORS_ALLOWED_ORIGINS
-        value: http://localhost:5173
+        value: http://localhost:5173,https://up-leveling-web.vercel.app

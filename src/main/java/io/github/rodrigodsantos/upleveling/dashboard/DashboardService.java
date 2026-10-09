@@ -1,6 +1,7 @@
 package io.github.rodrigodsantos.upleveling.dashboard;
 
 import io.github.rodrigodsantos.upleveling.dashboard.dto.CheckInHistoryItem;
+import io.github.rodrigodsantos.upleveling.dashboard.dto.DailyCheckIns;
 import io.github.rodrigodsantos.upleveling.dashboard.dto.DailyXp;
 import io.github.rodrigodsantos.upleveling.dashboard.dto.TodayHabit;
 import io.github.rodrigodsantos.upleveling.dashboard.dto.TodayResponse;
@@ -23,6 +24,7 @@ import java.time.Clock;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +42,8 @@ public class DashboardService {
     static final int DEFAULT_XP_HISTORY_DAYS = 30;
     static final int MAX_RANGE_DAYS = 366;
     static final int MAX_PAGE_SIZE = 100;
+    /** No histórico agrupado, cada item da página é um dia: até 31 por página (um mês). */
+    static final int MAX_DAYS_PER_PAGE = 31;
 
     private final HabitRepository habitRepository;
     private final CheckInRepository checkInRepository;
@@ -79,6 +83,32 @@ public class DashboardService {
         // Só página e tamanho: a ordem é fixa na consulta (mais recente primeiro)
         Pageable page = PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), MAX_PAGE_SIZE));
         return checkInRepository.findHistory(currentUser.id(), habitId, from, to, page);
+    }
+
+    /**
+     * Histórico agrupado por dia: cada item da página é um dia inteiro, com os check-ins somados por hábito.
+     * Duas consultas: os dias da página e, depois, os totais só desses dias (nada de uma consulta por dia).
+     */
+    public Page<DailyCheckIns> dailyHistory(Long habitId, LocalDate from, LocalDate to, Pageable pageable) {
+        validateRange(from, to);
+        Pageable page = PageRequest.of(pageable.getPageNumber(), Math.min(pageable.getPageSize(), MAX_DAYS_PER_PAGE));
+        Long userId = currentUser.id();
+
+        Page<LocalDate> days = checkInRepository.findCheckInDays(userId, habitId, from, to, page);
+        if (days.isEmpty()) {
+            return days.map(day -> new DailyCheckIns(day, 0, List.of()));
+        }
+
+        // A consulta já vem ordenada; o groupingBy com LinkedHashMap/toList mantém essa ordem dentro de cada dia
+        Map<LocalDate, List<HabitDayTotal>> totalsByDay = checkInRepository
+                .findHabitTotals(userId, habitId, days.getContent()).stream()
+                .collect(Collectors.groupingBy(HabitDayTotal::date, LinkedHashMap::new, Collectors.toList()));
+
+        return days.map(day -> {
+            List<HabitDayTotal> totals = totalsByDay.getOrDefault(day, List.of());
+            long xp = totals.stream().mapToLong(HabitDayTotal::totalXp).sum();
+            return new DailyCheckIns(day, xp, totals.stream().map(HabitDayTotal::toHabitCheckIns).toList());
+        });
     }
 
     /** XP por dia, com os dias sem check-in valendo 0 (o gráfico não fica com buracos). */

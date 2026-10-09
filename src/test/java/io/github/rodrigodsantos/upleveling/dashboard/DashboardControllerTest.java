@@ -117,6 +117,83 @@ class DashboardControllerTest extends ApiTest {
     }
 
     @Test
+    void dailyHistoryGroupsTheCheckInsOfEachHabitWithinTheDay() throws Exception {
+        Long ler = habit(ana, "Ler", 30, 1, "[]");
+        Long agua = habit(ana, "Beber água", 5, 3, "[]");
+        checkIn(ana, ler, YESTERDAY);
+        checkIn(ana, agua, null);
+        checkIn(ana, ler, null);
+        checkIn(ana, agua, null);   // a água tem o check-in mais recente de hoje: vem primeiro
+        checkIn(ana, agua, null);
+
+        fetch(ana, "/api/check-ins/daily")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].date").value("2026-10-07"))
+                .andExpect(jsonPath("$.content[0].xp").value(3 * 5 + 30))
+                .andExpect(jsonPath("$.content[0].habits.length()").value(2))
+                .andExpect(jsonPath("$.content[0].habits[0].habitName").value("Beber água"))
+                .andExpect(jsonPath("$.content[0].habits[0].count").value(3))
+                .andExpect(jsonPath("$.content[0].habits[0].xp").value(15))
+                .andExpect(jsonPath("$.content[0].habits[0].bonusXp").value(0))
+                .andExpect(jsonPath("$.content[0].habits[1].habitName").value("Ler"))
+                .andExpect(jsonPath("$.content[0].habits[1].count").value(1))
+                .andExpect(jsonPath("$.content[1].date").value("2026-10-06"))
+                .andExpect(jsonPath("$.content[1].habits[0].habitName").value("Ler"))
+                .andExpect(jsonPath("$.page.totalElements").value(2));   // 2 dias, não 5 check-ins
+    }
+
+    @Test
+    void dailyHistoryPaginatesByDaySoADayIsNeverSplit() throws Exception {
+        Long agua = habit(ana, "Beber água", 5, 3, "[]");
+        for (int i = 0; i < 3; i++) {
+            checkIn(ana, agua, YESTERDAY);
+            checkIn(ana, agua, null);
+        }
+
+        // 1 dia por página: a página 0 tem hoje inteiro (3 check-ins), a 1 tem ontem inteiro
+        fetch(ana, "/api/check-ins/daily?size=1")
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].date").value("2026-10-07"))
+                .andExpect(jsonPath("$.content[0].habits[0].count").value(3))
+                .andExpect(jsonPath("$.page.totalPages").value(2));
+        fetch(ana, "/api/check-ins/daily?size=1&page=1")
+                .andExpect(jsonPath("$.content[0].date").value("2026-10-06"))
+                .andExpect(jsonPath("$.content[0].habits[0].count").value(3));
+    }
+
+    @Test
+    void dailyHistoryFiltersByHabitAndPeriodAndKeepsDeletedHabits() throws Exception {
+        Long ler = habit(ana, "Ler", 30, 1, "[]");
+        Long agua = habit(ana, "Beber água", 5, 3, "[]");
+        checkIn(ana, ler, YESTERDAY);
+        checkIn(ana, agua, null);
+        checkIn(ana, ler, null);
+        mockMvc.perform(delete("/api/habits/{id}", ler).header(HttpHeaders.AUTHORIZATION, ana));
+
+        fetch(ana, "/api/check-ins/daily?habitId=" + ler)
+                .andExpect(jsonPath("$.page.totalElements").value(2))
+                .andExpect(jsonPath("$.content[0].habits.length()").value(1))
+                .andExpect(jsonPath("$.content[0].habits[0].habitName").value("Ler"))
+                .andExpect(jsonPath("$.content[0].xp").value(30));   // a água do mesmo dia não entra na soma
+        fetch(ana, "/api/check-ins/daily?habitId=" + agua)
+                .andExpect(jsonPath("$.page.totalElements").value(1));
+        fetch(ana, "/api/check-ins/daily?from=" + YESTERDAY + "&to=" + YESTERDAY)
+                .andExpect(jsonPath("$.content.length()").value(1))
+                .andExpect(jsonPath("$.content[0].date").value("2026-10-06"));
+    }
+
+    @Test
+    void dailyHistoryLimitsThePageSizeAndRejectsAnInvertedRange() throws Exception {
+        fetch(ana, "/api/check-ins/daily?size=500")
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty())
+                .andExpect(jsonPath("$.page.size").value(31));
+        fetch(ana, "/api/check-ins/daily?from=" + TODAY + "&to=" + YESTERDAY)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void xpHistoryFillsDaysWithoutCheckInWithZero() throws Exception {
         Long ler = habit(ana, "Ler", 30, 1, "[]");
         checkIn(ana, ler, YESTERDAY);
@@ -155,6 +232,8 @@ class DashboardControllerTest extends ApiTest {
                 .andExpect(jsonPath("$.xpEarnedToday").value(0));
         fetch(ana, "/api/check-ins").andExpect(jsonPath("$.page.totalElements").value(0));
         fetch(ana, "/api/check-ins?habitId=" + habitoDoBruno).andExpect(jsonPath("$.page.totalElements").value(0));
+        fetch(ana, "/api/check-ins/daily").andExpect(jsonPath("$.page.totalElements").value(0));
+        fetch(ana, "/api/check-ins/daily?habitId=" + habitoDoBruno).andExpect(jsonPath("$.page.totalElements").value(0));
         fetch(ana, "/api/me/xp-history?from=" + TODAY + "&to=" + TODAY).andExpect(jsonPath("$[0].xp").value(0));
     }
 

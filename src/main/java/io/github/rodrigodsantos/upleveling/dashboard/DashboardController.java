@@ -1,6 +1,7 @@
 package io.github.rodrigodsantos.upleveling.dashboard;
 
 import io.github.rodrigodsantos.upleveling.dashboard.dto.CheckInHistoryItem;
+import io.github.rodrigodsantos.upleveling.dashboard.dto.DailyCheckIns;
 import io.github.rodrigodsantos.upleveling.dashboard.dto.DailyXp;
 import io.github.rodrigodsantos.upleveling.dashboard.dto.TodayResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,6 +42,15 @@ public class DashboardController {
                                             @RequestParam(required = false) @DateTimeFormat(iso = DATE) LocalDate to,
                                             @PageableDefault(size = 20) Pageable pageable) {
         return service.history(habitId, from, to, pageable);
+    }
+
+    @GetMapping("/api/check-ins/daily")
+    @Operation(summary = "Histórico agrupado por dia: check-ins somados por hábito (cada item da página é um dia; máx. 31)")
+    public Page<DailyCheckIns> dailyHistory(@RequestParam(required = false) Long habitId,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DATE) LocalDate from,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DATE) LocalDate to,
+                                            @PageableDefault(size = 7) Pageable pageable) {
+        return service.dailyHistory(habitId, from, to, pageable);
     }
 
     @GetMapping("/api/me/xp-history")

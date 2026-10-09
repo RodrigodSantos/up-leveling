@@ -1,5 +1,6 @@
 package io.github.rodrigodsantos.upleveling.gamification;
 
+import io.github.rodrigodsantos.upleveling.dashboard.HabitDayTotal;
 import io.github.rodrigodsantos.upleveling.dashboard.dto.CheckInHistoryItem;
 import io.github.rodrigodsantos.upleveling.dashboard.dto.DailyXp;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -86,4 +88,43 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
             """)
     Page<CheckInHistoryItem> findHistory(@Param("userId") Long userId, @Param("habitId") Long habitId,
                                          @Param("from") LocalDate from, @Param("to") LocalDate to, Pageable pageable);
+
+    /**
+     * Histórico agrupado, passo 1: os DIAS com check-in, paginados (do mais recente para o mais antigo).
+     * Paginar por dia garante que um dia nunca fica dividido entre duas páginas.
+     */
+    @Query(value = """
+            SELECT DISTINCT c.checkInDate FROM CheckIn c
+            WHERE c.userId = :userId
+              AND (:habitId IS NULL OR c.habitId = :habitId)
+              AND (CAST(:from AS LocalDate) IS NULL OR c.checkInDate >= :from)
+              AND (CAST(:to AS LocalDate) IS NULL OR c.checkInDate <= :to)
+            ORDER BY c.checkInDate DESC
+            """,
+            countQuery = """
+            SELECT COUNT(DISTINCT c.checkInDate) FROM CheckIn c
+            WHERE c.userId = :userId
+              AND (:habitId IS NULL OR c.habitId = :habitId)
+              AND (CAST(:from AS LocalDate) IS NULL OR c.checkInDate >= :from)
+              AND (CAST(:to AS LocalDate) IS NULL OR c.checkInDate <= :to)
+            """)
+    Page<LocalDate> findCheckInDays(@Param("userId") Long userId, @Param("habitId") Long habitId,
+                                    @Param("from") LocalDate from, @Param("to") LocalDate to, Pageable pageable);
+
+    /**
+     * Histórico agrupado, passo 2: só nos dias da página, os check-ins somados por dia e hábito.
+     * Dentro do dia, o hábito com o check-in mais recente (maior id) vem primeiro.
+     */
+    @Query("""
+            SELECT new io.github.rodrigodsantos.upleveling.dashboard.HabitDayTotal(
+                       c.checkInDate, c.habitId, h.name, COUNT(c), SUM(c.xp), SUM(c.bonusXp))
+            FROM CheckIn c JOIN Habit h ON h.id = c.habitId
+            WHERE c.userId = :userId
+              AND (:habitId IS NULL OR c.habitId = :habitId)
+              AND c.checkInDate IN :days
+            GROUP BY c.checkInDate, c.habitId, h.name
+            ORDER BY c.checkInDate DESC, MAX(c.id) DESC
+            """)
+    List<HabitDayTotal> findHabitTotals(@Param("userId") Long userId, @Param("habitId") Long habitId,
+                                        @Param("days") Collection<LocalDate> days);
 }

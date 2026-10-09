@@ -831,6 +831,54 @@
           ]
         },
         {
+          "name": "Histórico agrupado por dia",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/check-ins/daily?page=0&size=7",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "check-ins",
+                "daily"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "size",
+                  "value": "7"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('cada item é um dia com os hábitos somados', () => {",
+                  "  const days = pm.response.json().content;",
+                  "  pm.expect(days.length).to.be.at.most(7);",
+                  "  days.forEach((day) => {",
+                  "    pm.expect(day).to.have.all.keys('date', 'xp', 'habits');",
+                  "    const ids = day.habits.map((h) => h.habitId);",
+                  "    pm.expect(new Set(ids).size).to.eql(ids.length);",
+                  "  });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "XP por dia (últimos 30 dias)",
           "request": {
             "method": "GET",

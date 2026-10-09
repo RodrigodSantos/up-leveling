@@ -108,6 +108,7 @@ Não existe coluna de XP total nem de nível: os dois são **calculados** a part
 | DELETE | `/api/habits/{id}/check-ins?date=` | Desfaz o último check-in do dia |
 | GET | `/api/today?date=` | Resumo do dia: hábitos, andamento, streak, XP do dia e nível |
 | GET | `/api/check-ins?habitId=&from=&to=&page=&size=` | Histórico paginado |
+| GET | `/api/check-ins/daily?habitId=&from=&to=&page=&size=` | Histórico agrupado: cada item é um dia, com os check-ins somados por hábito (7 dias por página, máx. 31) |
 
 ### Exemplo: check-in
 ```json

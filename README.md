@@ -96,6 +96,8 @@ Não existe coluna de XP total nem de nível: os dois são **calculados** a part
 | GET | `/api/me` | Dados do usuário logado |
 | PUT | `/api/me` | Atualiza nome e e-mail |
 | PUT | `/api/me/password` | Troca a senha (exige a atual) |
+| GET | `/api/me/accent-colors` | Cores de destaque salvas (até 5 matizes, 0–359°) |
+| PUT | `/api/me/accent-colors` | Substitui as cores salvas (sem repetir; a conta demo não pode) |
 | GET | `/api/me/progress` | XP total, nível e progresso até o próximo |
 | GET | `/api/me/xp-history?from=&to=` | XP por dia, para o gráfico (padrão: 30 dias) |
 | GET | `/api/habits?status=` | Lista os hábitos (padrão: ativos e pausados) |
@@ -182,7 +184,7 @@ O código é organizado **por funcionalidade**, não por camada:
 ```
 src/main/java/io/github/rodrigodsantos/upleveling
 ├── auth/           # cadastro, login e geração do token JWT
-├── user/           # entidade User, /api/me e troca de senha
+├── user/           # entidade User, /api/me, troca de senha e cores salvas
 ├── habit/          # hábitos, agenda semanal (DayOfWeek ↔ 1-7) e status
 ├── gamification/   # check-ins, XP, níveis (Levels) e streak (StreakCalculator)
 ├── dashboard/      # leituras para as telas: resumo do dia, histórico e gráfico

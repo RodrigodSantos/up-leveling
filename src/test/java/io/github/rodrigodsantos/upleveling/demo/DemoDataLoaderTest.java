@@ -71,6 +71,26 @@ class DemoDataLoaderTest extends ApiTest {
     }
 
     @Test
+    void demoAccountShowsSavedAccentColorsButVisitorsCannotChangeThem() throws Exception {
+        loader.reset();
+        String token = bearer(DemoAccount.EMAIL, DemoAccount.PASSWORD);
+
+        mockMvc.perform(get("/api/me/accent-colors").header(HttpHeaders.AUTHORIZATION, token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.hues[0]").value(200))
+                .andExpect(jsonPath("$.hues[1]").value(330));
+
+        mockMvc.perform(put("/api/me/accent-colors")
+                        .header(HttpHeaders.AUTHORIZATION, token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"hues": []}
+                                """))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.detail").value("A conta de demonstração não pode alterar as cores salvas"));
+    }
+
+    @Test
     void visitorsCannotLockTheDemoAccount() throws Exception {
         loader.reset();
         String token = bearer(DemoAccount.EMAIL, DemoAccount.PASSWORD);

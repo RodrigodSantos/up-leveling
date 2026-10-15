@@ -1,5 +1,7 @@
 package io.github.rodrigodsantos.upleveling.user;
 
+import io.github.rodrigodsantos.upleveling.user.dto.AccentColorsRequest;
+import io.github.rodrigodsantos.upleveling.user.dto.AccentColorsResponse;
 import io.github.rodrigodsantos.upleveling.user.dto.ChangePasswordRequest;
 import io.github.rodrigodsantos.upleveling.user.dto.UpdateProfileRequest;
 import io.github.rodrigodsantos.upleveling.user.dto.UserResponse;
@@ -45,5 +47,17 @@ public class MeController {
     @Operation(summary = "Troca a senha (exige a senha atual)")
     public void changePassword(@RequestBody @Valid ChangePasswordRequest request) {
         service.changePassword(request);
+    }
+
+    @GetMapping("/accent-colors")
+    @Operation(summary = "Cores de destaque salvas pelo usuário (até 5, além das padrão do app)")
+    public AccentColorsResponse accentColors() {
+        return service.accentColors();
+    }
+
+    @PutMapping("/accent-colors")
+    @Operation(summary = "Substitui as cores salvas (matizes de 0 a 359°, no máximo 5, sem repetir)")
+    public AccentColorsResponse replaceAccentColors(@RequestBody @Valid AccentColorsRequest request) {
+        return service.replaceAccentColors(request);
     }
 }

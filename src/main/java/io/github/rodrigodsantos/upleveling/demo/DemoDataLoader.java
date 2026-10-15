@@ -48,6 +48,7 @@ public class DemoDataLoader implements ApplicationRunner {
     private static final int HISTORY_DAYS = 30;
     private static final int BONUS_EVERY_DAYS = 7;
     private static final Set<DayOfWeek> EVERY_DAY = Set.of();
+    static final List<Integer> DEMO_ACCENT_HUES = List.of(200, 330);
 
     /**
      * Um hábito da demo e o "comportamento" do usuário fictício com ele.
@@ -117,6 +118,8 @@ public class DemoDataLoader implements ApplicationRunner {
                 .orElseGet(() -> userRepository.save(new User("Rodrigo", DemoAccount.EMAIL, "")));
         // Garante a senha conhecida (a API já impede que um visitante a troque, mas a demo se protege sozinha)
         user.changePassword(passwordEncoder.encode(DemoAccount.PASSWORD));
+        // Duas cores salvas (ciano e rosa): o visitante vê a funcionalidade, mesmo sem poder alterar
+        user.replaceAccentHues(DEMO_ACCENT_HUES);
         return user;
     }
 

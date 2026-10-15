@@ -7,9 +7,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Sem setters: o nome e o e-mail mudam juntos em {@link #updateProfile}, e a senha só por {@link #changePassword}.
@@ -32,6 +36,11 @@ public class User {
 
     @Column(name = "password_hash", nullable = false, length = 100)
     private String passwordHash;
+
+    // Cores de destaque salvas (matizes de 0 a 359°). ARRAY: o Hibernate grava a lista numa coluna INTEGER[]
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "accent_hues", nullable = false)
+    private List<Integer> accentHues = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -60,6 +69,12 @@ public class User {
         this.passwordHash = newPasswordHash;
     }
 
+    /** Substitui a lista inteira (quem valida o limite e as repetidas é o service). */
+    public void replaceAccentHues(List<Integer> hues) {
+        // Cópia: a lista de quem chamou não fica ligada à entidade (mudar ela depois não mudaria o usuário)
+        this.accentHues = new ArrayList<>(hues);
+    }
+
     public Long getId() {
         return id;
     }
@@ -78,5 +93,10 @@ public class User {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    /** Cópia só de leitura: a lista só muda por {@link #replaceAccentHues}. */
+    public List<Integer> getAccentHues() {
+        return List.copyOf(accentHues);
     }
 }

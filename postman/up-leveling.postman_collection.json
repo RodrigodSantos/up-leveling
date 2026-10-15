@@ -995,6 +995,150 @@
           ]
         },
         {
+          "name": "Salvar cores de destaque",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/accent-colors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "me",
+                "accent-colors"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hues\": [200, 330]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get('demo') === 'true') {",
+                  "  pm.execution.skipRequest(); // a conta demo já existe e não pode alterar as cores salvas",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Devolve as cores na ordem enviada', () => pm.expect(pm.response.json().hues).to.eql([200, 330]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Minhas cores de destaque",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/accent-colors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "me",
+                "accent-colors"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', () => pm.response.to.have.status(200));",
+                  "pm.test('Até 5 matizes de 0 a 359', () => {",
+                  "  const hues = pm.response.json().hues;",
+                  "  pm.expect(hues.length).to.be.at.most(5);",
+                  "  hues.forEach((hue) => pm.expect(hue).to.be.within(0, 359));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cor repetida (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/me/accent-colors",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "me",
+                "accent-colors"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hues\": [200, 200]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.environment.get('demo') === 'true') {",
+                  "  pm.execution.skipRequest(); // a conta demo já existe e não pode alterar as cores salvas",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', () => pm.response.to.have.status(400));",
+                  "pm.test('Explica o erro', () => pm.expect(pm.response.json().detail).to.eql('A mesma cor aparece mais de uma vez'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Trocar senha",
           "request": {
             "method": "PUT",

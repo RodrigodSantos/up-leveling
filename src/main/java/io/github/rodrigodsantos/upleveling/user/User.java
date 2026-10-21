@@ -37,6 +37,10 @@ public class User {
     @Column(name = "password_hash", nullable = false, length = 100)
     private String passwordHash;
 
+    // Gerado na criação e nunca muda: é o que a pessoa passa para os amigos a adicionarem
+    @Column(name = "friend_code", nullable = false, updatable = false, length = 10)
+    private String friendCode;
+
     // Cores de destaque salvas (matizes de 0 a 359°). ARRAY: o Hibernate grava a lista numa coluna INTEGER[]
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "accent_hues", nullable = false)
@@ -58,6 +62,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.friendCode = FriendCode.generate();
     }
 
     public void updateProfile(String name, String email) {
@@ -89,6 +94,10 @@ public class User {
 
     public String getPasswordHash() {
         return passwordHash;
+    }
+
+    public String getFriendCode() {
+        return friendCode;
     }
 
     public LocalDateTime getCreatedAt() {

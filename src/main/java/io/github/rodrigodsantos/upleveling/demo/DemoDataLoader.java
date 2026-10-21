@@ -1,5 +1,7 @@
 package io.github.rodrigodsantos.upleveling.demo;
 
+import io.github.rodrigodsantos.upleveling.friendship.Friendship;
+import io.github.rodrigodsantos.upleveling.friendship.FriendshipRepository;
 import io.github.rodrigodsantos.upleveling.gamification.CheckIn;
 import io.github.rodrigodsantos.upleveling.gamification.CheckInRepository;
 import io.github.rodrigodsantos.upleveling.gamification.StreakCalculator;
@@ -20,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -69,17 +72,36 @@ public class DemoDataLoader implements ApplicationRunner {
             new DemoHabit("Estudar Java", 40, 1, Set.of(MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY), 0.8, 5, 0)
     );
 
+    /**
+     * Amigos fictícios da demo, cada um com um hábito e o histórico dele (o XP dá o nível que aparece na lista).
+     * Ninguém entra nessas contas: a senha fica vazia, e o BCrypt nunca confere uma senha com um hash vazio.
+     */
+    private record DemoFriend(String name, String email, DemoHabit habit) {
+    }
+
+    private static final List<DemoFriend> FRIENDS = List.of(
+            new DemoFriend("Ana Lima", "ana.demo@upleveling.local",
+                    new DemoHabit("Correr 5 km", 40, 1, EVERY_DAY, 0.75, 9, 1)),
+            new DemoFriend("Bruno Costa", "bruno.demo@upleveling.local",
+                    new DemoHabit("Estudar inglês", 25, 1, EVERY_DAY, 0.6, 3, 0)),
+            new DemoFriend("Jardiel Carlos", "jardiel.demo@upleveling.local",
+                    new DemoHabit("Tocar violão", 30, 1, EVERY_DAY, 0.7, 5, 0))
+    );
+
     private final UserRepository userRepository;
     private final HabitRepository habitRepository;
     private final CheckInRepository checkInRepository;
+    private final FriendshipRepository friendshipRepository;
     private final PasswordEncoder passwordEncoder;
     private final Clock clock;
 
     public DemoDataLoader(UserRepository userRepository, HabitRepository habitRepository,
-                          CheckInRepository checkInRepository, PasswordEncoder passwordEncoder, Clock clock) {
+                          CheckInRepository checkInRepository, FriendshipRepository friendshipRepository,
+                          PasswordEncoder passwordEncoder, Clock clock) {
         this.userRepository = userRepository;
         this.habitRepository = habitRepository;
         this.checkInRepository = checkInRepository;
+        this.friendshipRepository = friendshipRepository;
         this.passwordEncoder = passwordEncoder;
         this.clock = clock;
     }
@@ -90,27 +112,51 @@ public class DemoDataLoader implements ApplicationRunner {
         reset();
     }
 
-    /** Apaga os hábitos e check-ins da conta demo e gera tudo de novo. Sempre o mesmo resultado para a mesma data. */
+    /** Apaga os hábitos, check-ins e amigos da conta demo e gera tudo de novo. Sempre o mesmo resultado para a mesma data. */
     @Transactional
     public void reset() {
         LocalDate today = LocalDate.now(clock);
         User user = demoUser();
 
-        checkInRepository.deleteAllOfUser(user.getId());
-        habitRepository.deleteAll(habitRepository.findByUserId(user.getId()));
-        habitRepository.flush();
+        friendshipRepository.deleteAllOf(user.getId());
+        clearHabits(user);
 
         // Semente fixa: os "sorteios" saem iguais a cada execução (a demo não muda a cada reinício)
         Random random = new Random(42);
         List<CheckIn> checkIns = new ArrayList<>();
         for (DemoHabit demo : HABITS) {
-            Habit habit = habitRepository.save(
-                    new Habit(user.getId(), demo.name(), demo.xpReward(), demo.dailyTarget(), demo.days()));
-            checkIns.addAll(history(user, habit, demo, today, random));
+            checkIns.addAll(createWithHistory(user, demo, today, random));
+        }
+        // Os amigos depois da demo: assim os sorteios dos hábitos da demo continuam os mesmos de antes
+        for (DemoFriend demoFriend : FRIENDS) {
+            User friend = friendUser(demoFriend);
+            clearHabits(friend);
+            checkIns.addAll(createWithHistory(friend, demoFriend.habit(), today, random));
+            Friendship friendship = new Friendship(friend.getId(), user.getId());
+            friendship.accept(LocalDateTime.now(clock));
+            friendshipRepository.save(friendship);
         }
         checkInRepository.saveAll(checkIns);
 
-        log.info("Conta demo ({}) recriada: {} hábitos e {} check-ins", DemoAccount.EMAIL, HABITS.size(), checkIns.size());
+        log.info("Conta demo ({}) recriada: {} hábitos, {} check-ins e {} amigos", DemoAccount.EMAIL, HABITS.size(),
+                checkIns.size(), FRIENDS.size());
+    }
+
+    private void clearHabits(User user) {
+        checkInRepository.deleteAllOfUser(user.getId());
+        habitRepository.deleteAll(habitRepository.findByUserId(user.getId()));
+        habitRepository.flush();
+    }
+
+    private List<CheckIn> createWithHistory(User user, DemoHabit demo, LocalDate today, Random random) {
+        Habit habit = habitRepository.save(
+                new Habit(user.getId(), demo.name(), demo.xpReward(), demo.dailyTarget(), demo.days()));
+        return history(user, habit, demo, today, random);
+    }
+
+    private User friendUser(DemoFriend demoFriend) {
+        return userRepository.findByEmail(demoFriend.email())
+                .orElseGet(() -> userRepository.save(new User(demoFriend.name(), demoFriend.email(), "")));
     }
 
     private User demoUser() {

@@ -53,6 +53,15 @@ public interface CheckInRepository extends JpaRepository<CheckIn, Long> {
     @Query("SELECT COALESCE(SUM(c.xp + c.bonusXp), 0) FROM CheckIn c WHERE c.userId = :userId")
     long totalXp(@Param("userId") Long userId);
 
+    /** O XP total de vários usuários numa consulta só (a lista de amigos, sem uma consulta por amigo). Quem não tem check-in não aparece. */
+    @Query("""
+            SELECT new io.github.rodrigodsantos.upleveling.gamification.UserXp(c.userId, SUM(c.xp + c.bonusXp))
+            FROM CheckIn c
+            WHERE c.userId IN :userIds
+            GROUP BY c.userId
+            """)
+    List<UserXp> totalXpOf(@Param("userIds") Collection<Long> userIds);
+
     @Query("SELECT COALESCE(SUM(c.xp + c.bonusXp), 0) FROM CheckIn c WHERE c.userId = :userId AND c.checkInDate = :date")
     long xpOn(@Param("userId") Long userId, @Param("date") LocalDate date);
 

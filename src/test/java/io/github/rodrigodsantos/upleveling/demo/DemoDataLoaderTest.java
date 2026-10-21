@@ -2,6 +2,7 @@ package io.github.rodrigodsantos.upleveling.demo;
 
 import com.jayway.jsonpath.JsonPath;
 import io.github.rodrigodsantos.upleveling.ApiTest;
+import io.github.rodrigodsantos.upleveling.friendship.FriendshipRepository;
 import io.github.rodrigodsantos.upleveling.gamification.CheckInRepository;
 import io.github.rodrigodsantos.upleveling.habit.HabitRepository;
 import io.github.rodrigodsantos.upleveling.shared.DemoAccount;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -32,13 +34,16 @@ class DemoDataLoaderTest extends ApiTest {
     @Autowired
     private CheckInRepository checkInRepository;
     @Autowired
+    private FriendshipRepository friendshipRepository;
+    @Autowired
     private PasswordEncoder passwordEncoder;
 
     private DemoDataLoader loader;
 
     @BeforeEach
     void createLoader() {
-        loader = new DemoDataLoader(userRepository, habitRepository, checkInRepository, passwordEncoder, clock);
+        loader = new DemoDataLoader(userRepository, habitRepository, checkInRepository, friendshipRepository,
+                passwordEncoder, clock);
     }
 
     @Test
@@ -111,6 +116,30 @@ class DemoDataLoaderTest extends ApiTest {
                                 {"name": "Invasor", "email": "invasor@mail.com"}
                                 """))
                 .andExpect(status().isUnprocessableContent());
+    }
+
+    @Test
+    void demoAccountShowsFriendsButVisitorsCannotChangeThem() throws Exception {
+        loader.reset();
+        loader.reset(); // recriar não duplica os amigos
+        String token = bearer(DemoAccount.EMAIL, DemoAccount.PASSWORD);
+
+        mockMvc.perform(get("/api/friends").header(HttpHeaders.AUTHORIZATION, token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].name").value("Ana Lima"))
+                .andExpect(jsonPath("$[0].progress.totalXp", greaterThan(0)))
+                .andExpect(jsonPath("$[1].name").value("Bruno Costa"))
+                .andExpect(jsonPath("$[2].name").value("Jardiel Carlos"));
+
+        Long anaId = userRepository.findByEmail("ana.demo@upleveling.local").orElseThrow().getId();
+        mockMvc.perform(delete("/api/friends/" + anaId).header(HttpHeaders.AUTHORIZATION, token))
+                .andExpect(status().isUnprocessableContent())
+                .andExpect(jsonPath("$.detail").value("A conta de demonstração não pode alterar amizades"));
+
+        // Ninguém entra nas contas dos amigos fictícios
+        login("ana.demo@upleveling.local", "").andExpect(status().isBadRequest());
+        login("ana.demo@upleveling.local", "qualquer-senha").andExpect(status().isUnauthorized());
     }
 
     private long totalXp(String token) throws Exception {

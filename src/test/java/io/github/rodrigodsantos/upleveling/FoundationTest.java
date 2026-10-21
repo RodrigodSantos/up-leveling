@@ -48,7 +48,7 @@ class FoundationTest {
                 ORDER BY table_name
                 """, String.class);
 
-        assertThat(tables).containsExactly("check_ins", "habit_schedule", "habits", "users");
+        assertThat(tables).containsExactly("check_ins", "friendships", "habit_schedule", "habits", "users");
     }
 
     @Test
